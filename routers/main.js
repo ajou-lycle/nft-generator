@@ -22,9 +22,10 @@ const upload = multer({
     // you might also want to set some limits: https://github.com/expressjs/multer#limits
 });
 
-const mkdirLayersIfNotExist = (collection, property) => {  
+const mkdirLayersIfNotExist = (collection, property) => {
     layersDir = `${basePath}/layers/${collection}`;
     layersPropertyDir = `${layersDir}/${property}`
+
     if (!fs.existsSync(layersDir)) {
         fs.mkdirSync(layersDir);
     }
@@ -32,7 +33,7 @@ const mkdirLayersIfNotExist = (collection, property) => {
     if (!fs.existsSync(layersPropertyDir)) {
         fs.mkdirSync(`${layersPropertyDir}`);
     }
-  };
+};
 
 module.exports = function (app) {
     app.get("/", express.static(path.join(__dirname, "../public")));
@@ -40,10 +41,11 @@ module.exports = function (app) {
         "/upload-layer",
         upload.single("file" /* name attribute of <file> element in your form */),
         (req, res) => {
+            console.log(req.body);
             const tempPath = req.file.path;
-            const targetPath = path.join(__dirname, `../layers/${req.body.collection}/${req.body.property}/${req.body.item}#${req.body.percentage}.png`);
+            const targetPath = path.join(__dirname, `../layers/${req.body.collection}/${req.body.layer}/${req.body.item}#${req.body.percentage}.png`);
 
-            mkdirLayersIfNotExist(req.body.collection, req.body.property)
+            mkdirLayersIfNotExist(req.body.collection, req.body.layer)
 
             if (path.extname(req.file.originalname).toLowerCase() === ".png") {
                 fs.rename(tempPath, targetPath, err => {
@@ -69,8 +71,9 @@ module.exports = function (app) {
     app.get('/create-new-collection', function (req, res) {
         const namePrefix = req.query.name;
         const description = req.query.description;
-        buildSetup(namePrefix);
-        
+        const growEditionSizeTo = req.query.growEditionSizeTo;
+        buildSetup(namePrefix,growEditionSizeTo)
+
         // TODO: layersConfiguration modify
         startCreating(namePrefix, description);
         result = { "success": 1 };

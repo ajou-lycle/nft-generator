@@ -5,12 +5,12 @@ const sha1 = require(`${basePath}/node_modules/sha1`);
 const { createCanvas, loadImage } = require(`${basePath}/node_modules/canvas`);
 let buildDir;
 let layersDir;
+let layerConfigurations = [];
 const {
   format,
   baseUri,
   background,
   uniqueDnaTorrance,
-  layerConfigurations,
   rarityDelimiter,
   shuffleLayerConfigurations,
   debugLogs,
@@ -31,9 +31,21 @@ const HashlipsGiffer = require(`${basePath}/modules/HashlipsGiffer.js`);
 
 let hashlipsGiffer = null;
 
-const buildSetup = (name) => {
+const buildSetup = (name, growEditionSizeTo) => {
   buildDir = `${basePath}/build/${name}`;
   layersDir = `${basePath}/layers/${name}`;
+  var layersOrder = [];
+
+  var layers = fs.readdirSync(layersDir);
+
+  for (const layer of layers) {
+    layersOrder.push({ name: layer })
+  }
+
+  layerConfigurations = [{
+    growEditionSizeTo: growEditionSizeTo,
+    layersOrder: layersOrder
+  }]
 
   if (fs.existsSync(buildDir)) {
     fs.rmSync(buildDir, { recursive: true });
@@ -204,18 +216,18 @@ const drawElement = (_renderObject, _index, _layersLen) => {
   ctx.globalCompositeOperation = _renderObject.layer.blend;
   text.only
     ? addText(
-        `${_renderObject.layer.name}${text.spacer}${_renderObject.layer.selectedElement.name}`,
-        text.xGap,
-        text.yGap * (_index + 1),
-        text.size
-      )
+      `${_renderObject.layer.name}${text.spacer}${_renderObject.layer.selectedElement.name}`,
+      text.xGap,
+      text.yGap * (_index + 1),
+      text.size
+    )
     : ctx.drawImage(
-        _renderObject.loadedImage,
-        0,
-        0,
-        format.width,
-        format.height
-      );
+      _renderObject.loadedImage,
+      0,
+      0,
+      format.width,
+      format.height
+    );
 
   addAttributes(_renderObject);
 };
@@ -294,8 +306,7 @@ const createDna = (_layers) => {
       random -= layer.elements[i].weight;
       if (random < 0) {
         return randNum.push(
-          `${layer.elements[i].id}:${layer.elements[i].filename}${
-            layer.bypassDNA ? "?bypassDNA=true" : ""
+          `${layer.elements[i].id}:${layer.elements[i].filename}${layer.bypassDNA ? "?bypassDNA=true" : ""
           }`
         );
       }
@@ -312,8 +323,8 @@ const saveMetaDataSingleFile = (_editionCount) => {
   let metadata = metadataList.find((meta) => meta.edition == _editionCount);
   debugLogs
     ? console.log(
-        `Writing metadata for ${_editionCount}: ${JSON.stringify(metadata)}`
-      )
+      `Writing metadata for ${_editionCount}: ${JSON.stringify(metadata)}`
+    )
     : null;
   fs.writeFileSync(
     `${buildDir}/json/${_editionCount}.json`,

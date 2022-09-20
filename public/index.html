@@ -7,7 +7,7 @@
         <form method="post" enctype="multipart/form-data" action="/upload-layer">
             <input type="file" name="file">
             <input type="text" name="collection">
-            <input type="text" name="property">
+            <input type="text" name="layer">
             <input type="text" name="item">
             <input type="text" name="percentage">
             <input type="submit" value="Submit">
@@ -15,6 +15,7 @@
         <form method="get" enctype="multipart/form-data" action="/create-new-collection">
             <input type="text" name="name">
             <input type="text" name="description">
+            <input type="number" name="growEditionSizeTo">
             <input type="submit" value="Submit">
         </form>
     </body>
