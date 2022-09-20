@@ -99,7 +99,7 @@ const getElements = (path) => {
     });
 };
 
-const layersSetup = (layersOrder) => {
+const layersSetup = (layersDir, layersOrder) => {
   const layers = layersOrder.map((layerObj, index) => ({
     id: index,
     elements: getElements(`${layersDir}/${layerObj.name}/`),
@@ -366,6 +366,7 @@ const startCreating = async (namePrefix, description) => {
     : null;
   while (layerConfigIndex < layerConfigurations.length) {
     const layers = layersSetup(
+      layersDir,
       layerConfigurations[layerConfigIndex].layersOrder
     );
     while (
@@ -441,4 +442,4 @@ const startCreating = async (namePrefix, description) => {
   writeMetaData(JSON.stringify(metadataList, null, 2));
 };
 
-module.exports = { startCreating, buildSetup, getElements };
+module.exports = { startCreating, buildSetup, getElements, layersSetup, createDna };

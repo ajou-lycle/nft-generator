@@ -2,13 +2,15 @@ const http = require("http");
 const path = require("path");
 const fs = require("fs");
 
+
 const express = require("express");
 const app = express();
 
 const multer = require("multer");
 
 const basePath = process.cwd();
-const { startCreating, buildSetup } = require(`${basePath}/src/main.js`);
+const { startCreating, buildSetup, layersSetup, createDna } = require(`${basePath}/src/main.js`);
+const sha1 = require(`${basePath}/node_modules/sha1`);
 
 const handleError = (err, res) => {
     res
@@ -72,12 +74,47 @@ module.exports = function (app) {
         const namePrefix = req.query.name;
         const description = req.query.description;
         const growEditionSizeTo = req.query.growEditionSizeTo;
-        buildSetup(namePrefix,growEditionSizeTo)
+        buildSetup(namePrefix, growEditionSizeTo)
 
         // TODO: layersConfiguration modify
         startCreating(namePrefix, description);
         result = { "success": 1 };
         res.json(result)
+    })
+    app.get('/blind-box', function (req, res) {
+        const namePrefix = req.query.name;
+
+        var layersDir = `${basePath}/layers/${namePrefix}`;
+        var layersOrder = [];
+        var layers = fs.readdirSync(layersDir);
+
+        for (const layer of layers) {
+            layersOrder.push({ name: layer })
+        }
+
+        console.log(layersOrder)
+        const layerSetting = layersSetup(
+            layersDir,
+            layersOrder
+        );
+
+        var dna = sha1(createDna(layerSetting))
+        var dnaJson;
+
+        var buildJsonDir = `${basePath}/build/${namePrefix}/json`;
+        var jsonNames = fs.readdirSync(buildJsonDir);
+        
+        for (var jsonName of jsonNames) {
+            var jsonPath = `${buildJsonDir}/${jsonName}`;
+            var json = require(jsonPath);
+            
+            if(json.dna == dna) {
+                dnaJson = json;
+                break;
+            } 
+        }
+
+        res.json(dnaJson)
     })
 }
 
