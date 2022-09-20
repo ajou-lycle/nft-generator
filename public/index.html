@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+    </head>
+    <body>
+        <form method="post" enctype="multipart/form-data" action="/upload-layer">
+            <input type="file" name="file">
+            <input type="text" name="collection">
+            <input type="text" name="property">
+            <input type="text" name="item">
+            <input type="text" name="percentage">
+            <input type="submit" value="Submit">
+        </form>
+        <form method="get" enctype="multipart/form-data" action="/create-new-collection">
+            <input type="text" name="name">
+            <input type="text" name="description">
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+</html>
