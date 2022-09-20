@@ -5,8 +5,6 @@ const { NETWORK } = require(`${basePath}/constants/network.js`);
 const network = NETWORK.eth;
 
 // General metadata for Ethereum
-const namePrefix = "Lycle";
-const description = "Enjoy health life";
 const baseUri = "file:///Users/jangseongho/Desktop/Lycle/nft-marketplace/nfts";
 
 const solanaMetadata = {
@@ -103,7 +101,6 @@ const preview_gif = {
 module.exports = {
   format,
   baseUri,
-  description,
   background,
   uniqueDnaTorrance,
   layerConfigurations,
@@ -114,7 +111,6 @@ module.exports = {
   extraMetadata,
   pixelFormat,
   text,
-  namePrefix,
   network,
   solanaMetadata,
   gif,

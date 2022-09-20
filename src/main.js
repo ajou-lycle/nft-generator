@@ -3,12 +3,11 @@ const { NETWORK } = require(`${basePath}/constants/network.js`);
 const fs = require("fs");
 const sha1 = require(`${basePath}/node_modules/sha1`);
 const { createCanvas, loadImage } = require(`${basePath}/node_modules/canvas`);
-const buildDir = `${basePath}/build`;
-const layersDir = `${basePath}/layers`;
+let buildDir;
+let layersDir;
 const {
   format,
   baseUri,
-  description,
   background,
   uniqueDnaTorrance,
   layerConfigurations,
@@ -17,7 +16,6 @@ const {
   debugLogs,
   extraMetadata,
   text,
-  namePrefix,
   network,
   solanaMetadata,
   gif,
@@ -33,9 +31,11 @@ const HashlipsGiffer = require(`${basePath}/modules/HashlipsGiffer.js`);
 
 let hashlipsGiffer = null;
 
-const buildSetup = () => {
+const buildSetup = (name) => {
+  buildDir = `${basePath}/build/${name}`;
+  layersDir = `${basePath}/layers/${name}`;
+
   if (fs.existsSync(buildDir)) {
-    // fs.rmdir will be removed.
     fs.rmSync(buildDir, { recursive: true });
   }
   fs.mkdirSync(buildDir);
@@ -129,7 +129,7 @@ const drawBackground = () => {
   ctx.fillRect(0, 0, format.width, format.height);
 };
 
-const addMetadata = (_dna, _edition) => {
+const addMetadata = (_dna, _edition, namePrefix, description) => {
   let dateTime = Date.now();
   let tempMetadata = {
     name: `${namePrefix} #${_edition}`,
@@ -335,7 +335,7 @@ function shuffle(array) {
   return array;
 }
 
-const startCreating = async () => {
+const startCreating = async (namePrefix, description) => {
   let layerConfigIndex = 0;
   let editionCount = 1;
   let failedCount = 0;
@@ -403,7 +403,7 @@ const startCreating = async () => {
             ? console.log("Editions left to create: ", abstractedIndexes)
             : null;
           saveImage(abstractedIndexes[0]);
-          addMetadata(newDna, abstractedIndexes[0]);
+          addMetadata(newDna, abstractedIndexes[0], namePrefix, description);
           saveMetaDataSingleFile(abstractedIndexes[0]);
           console.log(
             `Created edition: ${abstractedIndexes[0]}, with DNA: ${sha1(
