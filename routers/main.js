@@ -1,120 +1,80 @@
+const awsConfig = require('../aws.config.json');
+
 const http = require("http");
 const path = require("path");
-const fs = require("fs");
-
 
 const express = require("express");
 const app = express();
+const bodyParser = require('body-parser');
 
-const multer = require("multer");
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(bodyParser.json());
+app.use(express.json());
 
-const basePath = process.cwd();
-const { startCreating, buildSetup, layersSetup, createDna } = require(`${basePath}/src/main.js`);
-const sha1 = require(`${basePath}/node_modules/sha1`);
+const { initWeb3, createNewERC1155Token } = require('./web3');
+const { uploadToLocal, uploadLayersToLocal } = require("./upload_layers_to_local");
+const { createNewCollection } = require('./create_new_collection');
+const { drawNFT } = require("./blind_box");
 
-const handleError = (err, res) => {
-    res
-        .status(500)
-        .contentType("text/plain")
-        .end("Oops! Something went wrong!");
-};
-
-const upload = multer({
-    dest: "../layers"
-    // you might also want to set some limits: https://github.com/expressjs/multer#limits
-});
-
-const mkdirLayersIfNotExist = (collection, property) => {
-    layersDir = `${basePath}/layers/${collection}`;
-    layersPropertyDir = `${layersDir}/${property}`
-
-    if (!fs.existsSync(layersDir)) {
-        fs.mkdirSync(layersDir);
-    }
-
-    if (!fs.existsSync(layersPropertyDir)) {
-        fs.mkdirSync(`${layersPropertyDir}`);
-    }
-};
-
-module.exports = function (app) {
+module.exports = async (app) => {
+    await initWeb3();
     app.get("/", express.static(path.join(__dirname, "../public")));
+    app.get("/create-new-contract", async (req, res) => {
+        let statusCode;
+        let status;
+
+        try {
+            await createNewERC1155Token(req.query.name, req.query.symbol, awsConfig.BASE_URL);
+
+            statusCode = 200;
+            status = `${req.query.name} token contract deployed.`
+        } catch (e) {
+            statusCode = 500;
+            status = `error occured!`
+        }
+
+        res
+            .status(statusCode)
+            .contentType("text/plain")
+            .end(status);
+    });
     app.post(
-        "/upload-layer",
-        upload.single("file" /* name attribute of <file> element in your form */),
-        (req, res) => {
-            console.log(req.body);
-            const tempPath = req.file.path;
-            const targetPath = path.join(__dirname, `../layers/${req.body.collection}/${req.body.layer}/${req.body.item}#${req.body.percentage}.png`);
+        "/upload-layers-to-local",
+        uploadToLocal.single("file"),
+        async (req, res) => {
+            const layerPath = `../layers/${req.body.collection}/${req.body.layer}/${req.body.item}#${req.body.percentage}.png`
+            const { statusCode, status } = await uploadLayersToLocal(req.file.originalname, req.file.path, req.body.collection, req.body.layer, layerPath);
 
-            mkdirLayersIfNotExist(req.body.collection, req.body.layer)
-
-            if (path.extname(req.file.originalname).toLowerCase() === ".png") {
-                fs.rename(tempPath, targetPath, err => {
-                    if (err) return handleError(err, res);
-
-                    res
-                        .status(200)
-                        .contentType("text/plain")
-                        .end("File uploaded!");
-                });
-            } else {
-                fs.unlink(tempPath, err => {
-                    if (err) return handleError(err, res);
-
-                    res
-                        .status(403)
-                        .contentType("text/plain")
-                        .end("Only .png files are allowed!");
-                });
-            }
+            res
+                .status(statusCode)
+                .contentType("text/plain")
+                .end(status);
         }
     );
-    app.get('/create-new-collection', function (req, res) {
-        const namePrefix = req.query.name;
-        const description = req.query.description;
-        const growEditionSizeTo = req.query.growEditionSizeTo;
-        buildSetup(namePrefix, growEditionSizeTo)
+    app.get('/create-new-collection', async (req, res) => {
+        const layersOrder = req.query.layersOrder.split(' ');
+        let mapLayersOrder = []
 
-        // TODO: layersConfiguration modify
-        startCreating(namePrefix, description);
-        result = { "success": 1 };
-        res.json(result)
+        for (let layer of layersOrder) {
+            layer.trim();
+            mapLayersOrder.push({name: layer})
+        }
+
+        let layerConfigurations = [{
+            growEditionSizeTo: req.query.growEditionSizeTo,
+            layersOrder: mapLayersOrder
+        }]
+
+        const { statusCode, status } = await createNewCollection(req.query.name, req.query.description, layerConfigurations);
+        res
+            .status(statusCode)
+            .contentType("text/plain")
+            .end(status);
     })
-    app.get('/blind-box', function (req, res) {
-        const namePrefix = req.query.name;
-
-        var layersDir = `${basePath}/layers/${namePrefix}`;
-        var layersOrder = [];
-        var layers = fs.readdirSync(layersDir);
-
-        for (const layer of layers) {
-            layersOrder.push({ name: layer })
-        }
-
-        console.log(layersOrder)
-        const layerSetting = layersSetup(
-            layersDir,
-            layersOrder
-        );
-
-        var dna = sha1(createDna(layerSetting))
-        var dnaJson;
-
-        var buildJsonDir = `${basePath}/build/${namePrefix}/json`;
-        var jsonNames = fs.readdirSync(buildJsonDir);
-        
-        for (var jsonName of jsonNames) {
-            var jsonPath = `${buildJsonDir}/${jsonName}`;
-            var json = require(jsonPath);
-            
-            if(json.dna == dna) {
-                dnaJson = json;
-                break;
-            } 
-        }
-
-        res.json(dnaJson)
+    app.get('/blind-box', async (req, res) => {
+        await drawNFT(req.query.name);
     })
 }
 

@@ -3,9 +3,11 @@ const { NETWORK } = require(`${basePath}/constants/network.js`);
 const fs = require("fs");
 const sha1 = require(`${basePath}/node_modules/sha1`);
 const { createCanvas, loadImage } = require(`${basePath}/node_modules/canvas`);
+
 let buildDir;
 let layersDir;
 let layerConfigurations = [];
+
 const {
   format,
   baseUri,
@@ -20,32 +22,23 @@ const {
   solanaMetadata,
   gif,
 } = require(`${basePath}/src/config.js`);
+
 const canvas = createCanvas(format.width, format.height);
 const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = format.smoothing;
+
 var metadataList = [];
 var attributesList = [];
 var dnaList = new Set();
+
 const DNA_DELIMITER = "-";
 const HashlipsGiffer = require(`${basePath}/modules/HashlipsGiffer.js`);
 
 let hashlipsGiffer = null;
 
-const buildSetup = (name, growEditionSizeTo) => {
+const buildSetup = (name) => {
   buildDir = `${basePath}/build/${name}`;
-  layersDir = `${basePath}/layers/${name}`;
-  var layersOrder = [];
-
-  var layers = fs.readdirSync(layersDir);
-
-  for (const layer of layers) {
-    layersOrder.push({ name: layer })
-  }
-
-  layerConfigurations = [{
-    growEditionSizeTo: growEditionSizeTo,
-    layersOrder: layersOrder
-  }]
+  layersDir = `${basePath}/layers/${name}`
 
   if (fs.existsSync(buildDir)) {
     fs.rmSync(buildDir, { recursive: true });
@@ -255,7 +248,7 @@ const constructLayerToDna = (_dna = "", _layers = []) => {
  * @param {String} _dna New DNA string
  * @returns new DNA string with any items that should be filtered, removed.
  */
-const filterDNAOptions = (_dna) => {
+ const filterDNAOptions = (_dna) => {
   const dnaItems = _dna.split(DNA_DELIMITER);
   const filteredDNA = dnaItems.filter((element) => {
     const query = /(\?.*$)/;
@@ -346,11 +339,14 @@ function shuffle(array) {
   return array;
 }
 
-const startCreating = async (namePrefix, description) => {
+const startCreating = async (namePrefix, description, layerConfigurations) => {
   let layerConfigIndex = 0;
   let editionCount = 1;
   let failedCount = 0;
   let abstractedIndexes = [];
+
+  layerConfigurations = layerConfigurations;
+
   for (
     let i = network == NETWORK.sol ? 0 : 1;
     i <= layerConfigurations[layerConfigurations.length - 1].growEditionSizeTo;
@@ -417,6 +413,7 @@ const startCreating = async (namePrefix, description) => {
           saveImage(abstractedIndexes[0]);
           addMetadata(newDna, abstractedIndexes[0], namePrefix, description);
           saveMetaDataSingleFile(abstractedIndexes[0]);
+
           console.log(
             `Created edition: ${abstractedIndexes[0]}, with DNA: ${sha1(
               newDna

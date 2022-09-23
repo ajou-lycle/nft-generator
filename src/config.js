@@ -1,3 +1,5 @@
+require("dotenv").config({ path: "../.env" });
+
 const basePath = process.cwd();
 const { MODE } = require(`${basePath}/constants/blend_mode.js`);
 const { NETWORK } = require(`${basePath}/constants/network.js`);
@@ -5,7 +7,7 @@ const { NETWORK } = require(`${basePath}/constants/network.js`);
 const network = NETWORK.eth;
 
 // General metadata for Ethereum
-const baseUri = "file:///Users/jangseongho/Desktop/Lycle/nft-marketplace/nfts";
+const baseUri = process.env.BASE_URI;
 
 const solanaMetadata = {
   symbol: "YC",
