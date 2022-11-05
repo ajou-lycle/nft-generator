@@ -2,8 +2,8 @@ const web3Config = require('../truffle-config.js');
 
 const Web3 = require("Web3");
 const RLP = require("rlp")
-const ERC1155TokenFactory = require('../../nft-marketplace/client/src/contracts/ERC1155TokenFactory.json');
-const ERC1155Token = require('../../nft-marketplace/client/src/contracts/ERC1155Token.json');
+const ERC1155TokenFactory = require('../contracts/ERC1155TokenFactory.json');
+const ERC1155Token = require('../contracts/ERC1155Token.json');
 
 let web3;
 let ERC1155TokenFactoryContract;
@@ -23,8 +23,8 @@ const initWeb3 = async () => {
 const createNewERC1155Token = async (name, symbol, baseUri) => {
     const accounts = await web3.eth.getAccounts();
     const futureTokenContractAddress = await getFutureAddress(ERC1155TokenFactoryContract);
-    
     const tokenAddress = await getTokenContractAddressByName(name);
+
     if (tokenAddress == '0x0000000000000000000000000000000000000000') {
         try {
             const result = await ERC1155TokenFactoryContract.methods.createNewERC1155Token(name, symbol, `${baseUri}/${futureTokenContractAddress}/`).send({ from: accounts[0] });
