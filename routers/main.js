@@ -14,9 +14,11 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 const { initWeb3, createNewERC1155Token } = require('./web3');
+const { insertLayers } = require('../modules/db');
 const { uploadToLocal, uploadLayersToLocal } = require("./upload_layers_to_local");
 const { createNewCollection } = require('./create_new_collection');
-const { drawNFT } = require("./blind_box");
+const { uploadNftToS3 } = require('./upload_nft_to_s3');
+const { getNFTMetadataJsonFromS3 } = require("./blind_box");
 
 module.exports = async (app) => {
     await initWeb3();
@@ -26,7 +28,7 @@ module.exports = async (app) => {
         let status;
 
         try {
-            await createNewERC1155Token(req.query.name, req.query.symbol, awsConfig.BASE_URL);
+            await createNewERC1155Token(req.query.name, req.query.symbol, awsConfig.BASE_URI);
 
             statusCode = 200;
             status = `${req.query.name} token contract deployed.`
@@ -59,7 +61,18 @@ module.exports = async (app) => {
 
         for (let layer of layersOrder) {
             layer.trim();
-            mapLayersOrder.push({name: layer})
+
+            if (layer === "Background") {
+                mapLayersOrder.push({
+                    name: layer,
+                    options: {
+                        bypassDNA: true
+                    }
+                })
+                continue;
+            }
+
+            mapLayersOrder.push({ name: layer })
         }
 
         let layerConfigurations = [{
@@ -68,13 +81,31 @@ module.exports = async (app) => {
         }]
 
         const { statusCode, status } = await createNewCollection(req.query.name, req.query.description, layerConfigurations);
+
+        const mayLayersOrderString = JSON.stringify(mapLayersOrder);
+
+        insertLayers(req.query.name, mayLayersOrderString);
+
+        res
+            .status(statusCode)
+            .contentType("text/plain")
+            .end(status);
+    })
+    app.get('/upload-nft-to-s3', async (req, res) => {
+        const { statusCode, status } = await uploadNftToS3(req.query.name);
+
         res
             .status(statusCode)
             .contentType("text/plain")
             .end(status);
     })
     app.get('/blind-box', async (req, res) => {
-        await drawNFT(req.query.name);
+        const result = await getNFTMetadataJsonFromS3(req.query.name);
+
+        res
+        .status(200)
+        .contentType("text/plain")
+        .send(result);
     })
 }
 

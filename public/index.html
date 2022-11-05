@@ -7,29 +7,49 @@
 
 <body>
     <form method="get" enctype="multipart/form-data" action="/create-new-contract">
-        <input type="text" name="name">
-        <input type="text" name="symbol">
-        <input type="submit" value="Submit">
+        <div>
+            <h2>컬렉션 컨트랙트 배포</h2>
+            <div><span>컬렉션 이름 (영어로) <input type="text" name="name"></span></div>
+            <div><span>컬렉션 약자 (영어, 대문자로)<input type="text" name="symbol"></span></div>
+            <input type="submit" value="Submit">
+        </div>
     </form>
     <!-- 이거 사용 중 -->
     <form method="post" enctype="multipart/form-data" action="/upload-layers-to-local">
-        <input type="file" name="file">
-        <input type="text" name="collection">
-        <input type="text" name="layer">
-        <input type="text" name="item">
-        <input type="text" name="percentage">
-        <input type="submit" value="Submit">
+        <div>
+            <h2>컬렉션 아이템 이미지 서버에 올리기</h2>
+            <div><span>이미지 파일 업로드 <input type="file" name="file"></span></div>
+            <div><span>컬렉션 이름 (영어로) <input type="text" name="collection"></span></div>
+            <div><span>컬렉션 레이어 (영어로) <input type="text" name="layer"></span></div>
+            <div><span>컬렉션 아이템 이름 (영어로) <input type="text" name="item"></span></div>
+            <div><span>컬렉션 아이템 확률 (숫자만 입력) <input type="text" name="percentage"></span></div>
+            <input type="submit" value="Submit">
+        </div>
     </form>
     <form method="get" enctype="multipart/form-data" action="/create-new-collection">
+        <div>
+            <h2>컬렉션 이미지 생성</h2>
+            <div><span>컬렉션 이름 <input type="text" name="name"></span></div>
+            <div><span>컬렉션 설명 <input type="text" name="description"></span></div>
+            <div><span>컬렉션 레이어 쌓는 순서 <input type="text" name="layersOrder"></span></div>
+            <div><span>생성할 개수 <input type="number" name="growEditionSizeTo"></span></div>
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+    <form method="get" enctype="multipart/form-data" action="/upload-nft-to-s3">
+        <div>
+            <h2>컬렉션 이미지 S3에 올리기</h2>
         <input type="text" name="name">
-        <input type="text" name="description">
-        <input type="text" name="layersOrder">
-        <input type="number" name="growEditionSizeTo">
         <input type="submit" value="Submit">
+        </div>
     </form>
     <form method="get" enctype="multipart/form-data" action="/blind-box">
+        <div>
+            <h2>NFT 뽑기</h2>
         <input type="text" name="name">
         <input type="submit" value="Submit">
+        </div>
     </form>
 </body>
+
 </html>

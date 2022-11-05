@@ -91,7 +91,6 @@ typings/
 
 # dotenv environment variables file
 
-.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -140,7 +139,3 @@ dist
 # OSX
 
 .DS_Store
-
-aws.config.json
-web3.config.js
-web3.config.json

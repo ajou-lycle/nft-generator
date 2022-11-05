@@ -1,44 +1,54 @@
-const awsConfig = require('../aws.config.json');
+
 const projectRootPath = process.cwd();
 
-const { startCreating, buildSetup, layersSetup, createDna } = require(`${projectRootPath}/src/main.js`);
+const path = require("path");
+const fs = require("fs");
+
+const { updateNFT, getNumOfAllDataByCollectionName, getJsonPath, getLayers } = require('../modules/db');
+const { layersSetup, createDna } = require(`${projectRootPath}/src/main.js`);
 const sha1 = require(`${projectRootPath}/node_modules/sha1`);
 
-const upload = require('./upload_to_amazon');
+const { getObjectFromS3 } = require('./aws');
 
-const drawNFT = async (name) => {
-    const contractAddress = await getTokenContractAddressByName(name);
-    const namePrefix = contractAddress;
+const getNFTMetadataJsonFromS3 = async (name) => {
+    const result = await getLayers(name);
+    const parsingResult = JSON.parse(result);
+    const layersOrder = [];
 
-    var layersDir = `${projectRootPath}/layers/${namePrefix}`;
-    var layersOrder = [];
-
-    for (const layer of layers) {
-        layersOrder.push({ name: layer })
+    for (const layer of parsingResult) {
+        layersOrder.push(layer);
     }
+
+    var layersDir = `${projectRootPath}/layers/${name}`;
 
     const layerSetting = layersSetup(
         layersDir,
         layersOrder
     );
 
-    var dna = sha1(createDna(layerSetting))
-    var dnaJson;
+    const resultNumOfNFT = await getNumOfAllDataByCollectionName(name);
 
-    var buildJsonDir = `${baseUri}/build/${namePrefix}/json`;
-    var jsonNames = fs.readdirSync(buildJsonDir);
+    const numOfNFT = Object.values(resultNumOfNFT[0])[0];
 
-    for (var jsonName of jsonNames) {
-        var jsonPath = `${buildJsonDir}/${jsonName}`;
-        var json = require(jsonPath);
-
-        if (json.dna == dna) {
-            dnaJson = json;
-            break;
-        }
+    if (numOfNFT === 0) {
+        return {
+            'result': false
+        };
     }
 
-    console.log(dnaJson)
+    let dnaResult;
+
+    do {
+        var dna = sha1(createDna(layerSetting));
+        dnaResult = await getJsonPath(name, dna);
+    } while (dnaResult.length == 0);
+
+    updateNFT(name, dna, true);
+
+    return {
+        'result': true,
+        'data': JSON.parse(await getObjectFromS3(dnaResult[0].json_path))
+    };
 }
 
-module.exports = { drawNFT }
+module.exports = { getNFTMetadataJsonFromS3 }

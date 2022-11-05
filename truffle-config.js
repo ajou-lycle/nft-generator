@@ -62,11 +62,11 @@
        port: 7545,
        network_id: 5777
      },
-     ropsten_infura: {
+     goerli_infura: {
        provider: function() {
-         return new HDWalletProvider(mnemonic, "https://ropsten.infura.io/v3/" + infura_api_key, AccountIndex)
+         return new HDWalletProvider(mnemonic, "https://goerli.infura.io/v3/" + infura_api_key, AccountIndex)
        },
-       network_id: 3,
+       network_id: 5,
        // gas: 0x1b95911,    
        // gasPrice: 20000000000,  // 20 gwei (in wei) (default: 100 gwei)
      }

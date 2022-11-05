@@ -9,7 +9,7 @@ let web3;
 let ERC1155TokenFactoryContract;
 
 const initWeb3 = async () => {
-    web3 = new Web3(web3Config.networks.ropsten_infura.provider());
+    web3 = new Web3(web3Config.networks.goerli_infura.provider());
     const networkID = await web3.eth.net.getId();
 
     const { abi } = ERC1155TokenFactory;
@@ -23,6 +23,7 @@ const initWeb3 = async () => {
 const createNewERC1155Token = async (name, symbol, baseUri) => {
     const accounts = await web3.eth.getAccounts();
     const futureTokenContractAddress = await getFutureAddress(ERC1155TokenFactoryContract);
+    
     const tokenAddress = await getTokenContractAddressByName(name);
     if (tokenAddress == '0x0000000000000000000000000000000000000000') {
         try {
@@ -31,17 +32,14 @@ const createNewERC1155Token = async (name, symbol, baseUri) => {
             console.log(result)
         } catch (e) {
             console.log(e)
-
-            return false;
         }
     }
-
-    return true;
 }
 
 const getFutureAddress = async (contract) => {
     const from = contract.options.address;
     const nonce = await web3.eth.getTransactionCount(contract.options.address);
+    console.log(`${nonce}`);
 
     const startPointContractAddress = 26;
     const endPointContractAddress = 66;

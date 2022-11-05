@@ -10,7 +10,6 @@ let layerConfigurations = [];
 
 const {
   format,
-  baseUri,
   background,
   uniqueDnaTorrance,
   rarityDelimiter,
@@ -93,26 +92,27 @@ const getElements = (path) => {
 };
 
 const layersSetup = (layersDir, layersOrder) => {
-  const layers = layersOrder.map((layerObj, index) => ({
-    id: index,
-    elements: getElements(`${layersDir}/${layerObj.name}/`),
-    name:
-      layerObj.options?.["displayName"] != undefined
-        ? layerObj.options?.["displayName"]
-        : layerObj.name,
-    blend:
-      layerObj.options?.["blend"] != undefined
-        ? layerObj.options?.["blend"]
-        : "source-over",
-    opacity:
-      layerObj.options?.["opacity"] != undefined
-        ? layerObj.options?.["opacity"]
-        : 1,
-    bypassDNA:
-      layerObj.options?.["bypassDNA"] !== undefined
-        ? layerObj.options?.["bypassDNA"]
-        : false,
-  }));
+  const layers = layersOrder.map((layerObj, index) => (
+    {
+      id: index,
+      elements: getElements(`${layersDir}/${layerObj.name}/`),
+      name:
+        layerObj.options?.["displayName"] != undefined
+          ? layerObj.options?.["displayName"]
+          : layerObj.name,
+      blend:
+        layerObj.options?.["blend"] != undefined
+          ? layerObj.options?.["blend"]
+          : "source-over",
+      opacity:
+        layerObj.options?.["opacity"] != undefined
+          ? layerObj.options?.["opacity"]
+          : 1,
+      bypassDNA:
+        layerObj.options?.["bypassDNA"] !== undefined
+          ? layerObj.options?.["bypassDNA"]
+          : false,
+    }));
   return layers;
 };
 
@@ -134,12 +134,12 @@ const drawBackground = () => {
   ctx.fillRect(0, 0, format.width, format.height);
 };
 
-const addMetadata = (_dna, _edition, namePrefix, description) => {
+const addMetadata = (_baseUri, _dna, _edition, namePrefix, description) => {
   let dateTime = Date.now();
   let tempMetadata = {
     name: `${namePrefix} #${_edition}`,
     description: description,
-    image: `${baseUri}/${_edition}.png`,
+    image: `${_baseUri}/${_edition}.png`,
     dna: sha1(_dna),
     edition: _edition,
     date: dateTime,
@@ -248,7 +248,7 @@ const constructLayerToDna = (_dna = "", _layers = []) => {
  * @param {String} _dna New DNA string
  * @returns new DNA string with any items that should be filtered, removed.
  */
- const filterDNAOptions = (_dna) => {
+const filterDNAOptions = (_dna) => {
   const dnaItems = _dna.split(DNA_DELIMITER);
   const filteredDNA = dnaItems.filter((element) => {
     const query = /(\?.*$)/;
@@ -339,7 +339,7 @@ function shuffle(array) {
   return array;
 }
 
-const startCreating = async (namePrefix, description, layerConfigurations) => {
+const startCreating = async (baseUri, namePrefix, description, layerConfigurations) => {
   let layerConfigIndex = 0;
   let editionCount = 1;
   let failedCount = 0;
@@ -411,7 +411,7 @@ const startCreating = async (namePrefix, description, layerConfigurations) => {
             ? console.log("Editions left to create: ", abstractedIndexes)
             : null;
           saveImage(abstractedIndexes[0]);
-          addMetadata(newDna, abstractedIndexes[0], namePrefix, description);
+          addMetadata(baseUri, newDna, abstractedIndexes[0], namePrefix, description);
           saveMetaDataSingleFile(abstractedIndexes[0]);
 
           console.log(
