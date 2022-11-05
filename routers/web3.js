@@ -22,12 +22,11 @@ const initWeb3 = async () => {
 
 const createNewERC1155Token = async (name, symbol, baseUri) => {
     const accounts = await web3.eth.getAccounts();
-    const futureTokenContractAddress = await getFutureAddress(ERC1155TokenFactoryContract);
     const tokenAddress = await getTokenContractAddressByName(name);
 
     if (tokenAddress == '0x0000000000000000000000000000000000000000') {
         try {
-            const result = await ERC1155TokenFactoryContract.methods.createNewERC1155Token(name, symbol, `${baseUri}/${futureTokenContractAddress}/`).send({ from: accounts[0] });
+            const result = await ERC1155TokenFactoryContract.methods.createNewERC1155Token(name, symbol, `${baseUri}/`).send({ from: accounts[0] });
 
             console.log(result)
         } catch (e) {
@@ -47,6 +46,7 @@ const getFutureAddress = async (contract) => {
     
     return futureTokenContractAddress;
 }
+
 const getTokenContractAddressByName = async (name) => {
     const contractAddress = await ERC1155TokenFactoryContract.methods.getContractAddressByName(name).call();
 

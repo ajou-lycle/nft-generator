@@ -29,7 +29,7 @@ const uploadNftToS3 = async (name) => {
                 for (const file of fileList) {
                     let fileType = file.substring(file.lastIndexOf(".") + 1, file.length).toLowerCase();
                     let filePath = `${nftDirPath}/${file}`;
-                    let destination = `nfts/${contractAddress}/${fileType}/${file}`;
+                    let destination = `${contractAddress}/nfts/${fileType}/${file}`;
 
                     await uploadToAWS(filePath, destination);
 
