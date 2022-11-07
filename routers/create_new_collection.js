@@ -20,7 +20,7 @@ const createNewCollection = async (name, description, layerConfigurations) => {
         const nftImagesLocalPath = `${projectRootPath}/build/${name}/images`;
         const nftJsonLoaclPath = `${projectRootPath}/build/${name}/json`;
         const nftDirPathList = [nftImagesLocalPath, nftJsonLoaclPath];
-        const awsBaseUri = `${awsConfig.BASE_URI}/nfts/${namePrefix}/png`;
+        const awsBaseUri = `${awsConfig.BASE_URI}/${namePrefix}/nfts/png`;
 
         buildSetup(name);
 

@@ -26,7 +26,7 @@ const createNewERC1155Token = async (name, symbol, baseUri) => {
 
     if (tokenAddress == '0x0000000000000000000000000000000000000000') {
         try {
-            const result = await ERC1155TokenFactoryContract.methods.createNewERC1155Token(name, symbol, `${baseUri}/`).send({ from: accounts[0] });
+            const result = await ERC1155TokenFactoryContract.methods.createNewERC1155Token(name, symbol, `${baseUri}`).send({ from: accounts[0] });
 
             console.log(result)
         } catch (e) {

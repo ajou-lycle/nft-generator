@@ -1,5 +1,5 @@
 {
-    "BASE_URI": "https://s3.ap-northeast-2.amazonaws.com/lycle-bucket",
+    "BASE_URI": "https://lycle-bucket.s3.ap-northeast-2.amazonaws.com/",
     "BUCKET": "lycle-bucket",
     "REGION": "ap-northeast-2",
     "ACL": "public-read-write",
