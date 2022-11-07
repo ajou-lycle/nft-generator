@@ -27,3 +27,7 @@ CREATE TABLE NFTS_LAYERS (
 	layers VARCHAR(500) NOT NULL
 );
 ```
+
+### hotfix
+
+canvas 모듈이 node 18을 지원하기 위해서, 2.10.2 버전으로 업데이트 되었습니다.
