@@ -1,6 +1,6 @@
 const web3Config = require('../truffle-config.js');
 
-const Web3 = require("Web3");
+const Web3 = require("web3");
 const RLP = require("rlp")
 const ERC1155TokenFactory = require('../contracts/ERC1155TokenFactory.json');
 const ERC1155Token = require('../contracts/ERC1155Token.json');
