@@ -16,7 +16,7 @@ const createNewCollection = async (name, description, layerConfigurations) => {
         const contractAddress = await getTokenContractAddressByName(name);
 
         const namePrefix = contractAddress;
-
+ㅌ
         const nftImagesLocalPath = `${projectRootPath}/build/${name}/images`;
         const nftJsonLoaclPath = `${projectRootPath}/build/${name}/json`;
         const nftDirPathList = [nftImagesLocalPath, nftJsonLoaclPath];
