@@ -1,8 +1,0 @@
-{
-    "BASE_URI": "https://lycle-bucket.s3.ap-northeast-2.amazonaws.com",
-    "BUCKET": "lycle-bucket",
-    "REGION": "ap-northeast-2",
-    "ACL": "public-read-write",
-    "AWS_ACCESS_KEY_ID": "AKIA6FK2JXXYFMVKVYQM",
-    "AWS_SECRET_KEY": "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"
-}
